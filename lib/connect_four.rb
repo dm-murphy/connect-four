@@ -186,16 +186,18 @@ class Board
   def horizontal_check(horizontal)
     trans = horizontal.safe_transpose
 
-    trans.each_with_index do |row, index|
-      p row[index]
-        # if marker[index] == "X" && marker[index + 1] == "X" && marker[index + 2] == "X" && marker[index + 3] == "X"
-        #   return true
-        # else
-        #   return false
-        # end
+    trans.each do |row|
+      string = row.join(",")
+
+      if string.include?('X,X,X,X')
+        return true
+      elsif string.include?('O,O,O,O')
+        return true
+      else
+        false
+      end 
     end
     false
-      
   end
 
   def vertical?
@@ -207,17 +209,25 @@ class Board
   def vertical_check(vertical)
     vertical.each do |column|
       string = column.join()
+
       if string.include?('XXXX')
         return true
       elsif string.include?('OOOO')
         return true
       else
-        return false
+        false
       end
     end
+    false
   end
   
   def diagonal?
+    # columns = []
+    # columns.push(@one, @two, @three, @four, @five, @six, @seven)
+    # rows = columns.safe_transpose
+    # p columns
+    # p rows
+
     false
     # Keep false for now
   end

@@ -1,3 +1,5 @@
+require 'pp'
+
 class Game
   attr_accessor :board, :player_1, :player_2
 
@@ -103,12 +105,12 @@ class Board
     puts <<-HEREDOC
 
     1  | 2  | 3  | 4  | 5  | 6  | 7
-    #{@one[5]}  | #{@two[5]}  |  #{@three[5]}  |  #{@four[5]}  |  #{@five[5]}  |  #{@six[5]}  |  #{@seven[5]}
-    #{@one[4]}  | #{@two[4]}  |  #{@three[4]}  |  #{@four[4]}  |  #{@five[4]}  |  #{@six[4]}  |  #{@seven[4]}
-    #{@one[3]}  | #{@two[3]}  |  #{@three[3]}  |  #{@four[3]}  |  #{@five[3]}  |  #{@six[3]}  |  #{@seven[3]}
-    #{@one[2]}  | #{@two[2]}  |  #{@three[2]}  |  #{@four[2]}  |  #{@five[2]}  |  #{@six[2]}  |  #{@seven[2]}
-    #{@one[1]}  | #{@two[1]}  |  #{@three[1]}  |  #{@four[1]}  |  #{@five[1]}  |  #{@six[1]}  |  #{@seven[1]}
-    #{@one[0]}  | #{@two[0]}  |  #{@three[0]}  |  #{@four[0]}  |  #{@five[0]}  |  #{@six[0]}  |  #{@seven[0]}
+    #{@one[5]}  |  #{@two[5]}  |  #{@three[5]}  |  #{@four[5]}  |  #{@five[5]}  |  #{@six[5]}  |  #{@seven[5]}
+    #{@one[4]}  |  #{@two[4]}  |  #{@three[4]}  |  #{@four[4]}  |  #{@five[4]}  |  #{@six[4]}  |  #{@seven[4]}
+    #{@one[3]}  |  #{@two[3]}  |  #{@three[3]}  |  #{@four[3]}  |  #{@five[3]}  |  #{@six[3]}  |  #{@seven[3]}
+    #{@one[2]}  |  #{@two[2]}  |  #{@three[2]}  |  #{@four[2]}  |  #{@five[2]}  |  #{@six[2]}  |  #{@seven[2]}
+    #{@one[1]}  |  #{@two[1]}  |  #{@three[1]}  |  #{@four[1]}  |  #{@five[1]}  |  #{@six[1]}  |  #{@seven[1]}
+    #{@one[0]}  |  #{@two[0]}  |  #{@three[0]}  |  #{@four[0]}  |  #{@five[0]}  |  #{@six[0]}  |  #{@seven[0]}
     
     HEREDOC
 
@@ -165,30 +167,35 @@ class Board
     end
   end
 
-  def consecutive?   
-    if horizontal?
+  def consecutive?
+    columns = []
+    columns.push(@one, @two, @three, @four, @five, @six, @seven)
+    
+    rows = make_rows(columns)
+    
+    if four_in_row?(columns)
       true
-    elsif vertical?
+    elsif four_in_row?(rows)
       true
-    elsif diagonal?
+    elsif diagonal?(rows)
       true
     else
       false
     end
   end
 
-  def horizontal?
-    horizontal = []
-    horizontal.push(@one, @two, @three, @four, @five, @six, @seven)
-    horizontal_check(horizontal)
+  def make_rows(columns)
+    temp_columns = Marshal.load(Marshal.dump(columns))
+    temp_columns.each do |column|
+      column.push('*') until column.count == 6
+    end
+  
+    temp_columns.transpose
   end
 
-  def horizontal_check(horizontal)
-    trans = horizontal.safe_transpose
-
-    trans.each do |row|
-      string = row.join(",")
-
+  def four_in_row?(arrays)
+    arrays.each do |arr|
+      string = arr.join(",")
       if string.include?('X,X,X,X')
         return true
       elsif string.include?('O,O,O,O')
@@ -197,55 +204,46 @@ class Board
         false
       end 
     end
-    false
+    false    
   end
 
-  def vertical?
-    vertical = []
-    vertical.push(@one, @two, @three, @four, @five, @six, @seven)
-    vertical_check(vertical)
+  def diagonal?(rows) 
+    forward_slash_diagonals = make_forward_diagonals(rows)
+    backward_slash_diagonals = make_backwards_diagonals(rows)
+    # Keep for testing
+    puts "Grid of rows:"
+    pp rows
+    puts
+    puts "Diagonal arrays:"
+    # pp forward_slash_diagonals
+    pp backward_slash_diagonals
+    puts
+    # # # #
+
+    ####   four_in_row?(forward_slash_diagonals)
+    
+    four_in_row?(backward_slash_diagonals)
   end
 
-  def vertical_check(vertical)
-    vertical.each do |column|
-      string = column.join()
+  def make_forward_diagonals(grid)
+    (0..2).map do |i|
+      (0..5 - i).map { |j| grid[i + j][j] }
+    end.concat((1..3).map do |j|
+      (0..6 - j).map { |i| grid[i][j + i] }
+    end)
+  end 
 
-      if string.include?('XXXX')
-        return true
-      elsif string.include?('OOOO')
-        return true
-      else
-        false
-      end
+  def make_backwards_diagonals(grid)
+    (0..2).map do |i|
+      (0..5 - i).map { |j| grid[i + j][6 - j] }
     end
-    false
-  end
-  
-  def diagonal?
-    # columns = []
-    # columns.push(@one, @two, @three, @four, @five, @six, @seven)
-    # rows = columns.safe_transpose
-    # p columns
-    # p rows
 
-    false
-    # Keep false for now
-  end
-
-end
-
-class Array
-  def safe_transpose
-    result = []
-    max_size = self.max { |a,b| a.size <=> b.size }.size
-    max_size.times do |i|
-      result[i] = Array.new(self.first.size)
-      self.each_with_index { |r,j| result[i][j] = r[i] }
-    end
-    result
+    
+    # .concat((1..3).map do |j|
+    #   (0..6 - j).map { |i| grid[i][j + i] }
+    # end)
   end
 end
-
 
 game = Game.new
 game.start

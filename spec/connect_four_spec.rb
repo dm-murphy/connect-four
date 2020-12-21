@@ -19,9 +19,6 @@ describe Game do
     # Command sent to self so don't test?
   end
 
-  describe '#winner?' do
-    # Outgoing query -> No test needed
-  end
 end
 
 describe Player do
@@ -85,7 +82,7 @@ describe Board do
     # Query incoming from Game
     context 'when a Player marker appears 4 consecutive times in a horiztonal line' do
       
-      it 'returns true' do #and returns player marker that won?
+      it 'returns true' do
         board = Board.new
         allow(board).to receive(:horizontal?).and_return(true)
         expect(board.consecutive?).to be true

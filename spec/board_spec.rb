@@ -1,48 +1,5 @@
-#spec/connect_four_spec.rb
-require './lib/game'
-
-describe Game do
-  describe '#start' do
-    # Public Script Method -> No test needed, but check methods inside
-  end
-
-  describe '#display_rules' do
-    # Query sent to self? 
-    # Puts message. No test needed.
-  end
-
-  describe '#take_turn' do
-    # Public Script Method -> No test needed, but check methods inside
-  end
-
-  describe '#swap_player' do
-    # Command sent to self so don't test?
-  end
-
-end
-
-describe Player do
-
-  describe '#ask_player' do
- 
-    context 'when player chooses a valid position' do
-      it 'returns position' do
-        player = Player.new('X')
-        allow(player).to receive(:ask_player).and_return(3)
-        expect(player.ask_player).to eq(3)
-      end
-    end
-
-    context 'when player chooses an invalid position' do
-      it 'returns nil' do
-        player = Player.new('X')
-        allow(player).to receive(:ask_player).and_return(nil)
-        expect(player.ask_player).to eq(nil)
-      end
-    end
-
-  end
-end
+#spec/board_spec.rb
+require './lib/board'
 
 describe Board do
 
@@ -167,5 +124,4 @@ describe Board do
       end
     end
   end
-
 end

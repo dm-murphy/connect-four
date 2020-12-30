@@ -84,7 +84,7 @@ describe Board do
       
       it 'returns true' do
         board = Board.new
-        allow(board).to receive(:horizontal?).and_return(true)
+        allow(board).to receive(:four_in_row?).and_return(true)
         expect(board.consecutive?).to be true
       end
 
@@ -103,7 +103,7 @@ describe Board do
       
       it 'returns true' do
         board = Board.new
-        allow(board).to receive(:vertical?).and_return(true)
+        allow(board).to receive(:four_in_row?).and_return(true)
         expect(board.consecutive?).to be true
       end
     end
@@ -112,9 +112,9 @@ describe Board do
 
       it 'returns false' do
         board = Board.new
-        allow(board).to receive(:horizontal?).and_return(false)
+        allow(board).to receive(:four_in_row?).and_return(false)
+        allow(board).to receive(:four_in_row?).and_return(false)
         allow(board).to receive(:diagonal?).and_return(false)
-        allow(board).to receive(:vertical?).and_return(false)
         expect(board.consecutive?).to be false
       end
     end

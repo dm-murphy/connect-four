@@ -1,13 +1,12 @@
-require 'pp'
 
 class Game
-  attr_accessor :board, :player_1, :player_2
+  attr_accessor :board, :player_one, :player_two
 
-  def initialize(board = Board.new, player_1 = Player.new('X'), player_2 = Player.new('O'))
+  def initialize(board = Board.new, player_one = Player.new('X'), player_two = Player.new('O'))
     @board = board
-    @player_1 = player_1
-    @player_2 = player_2
-    @current_player = @player_1
+    @player_one = player_one
+    @player_two = player_two
+    @current_player = @player_one
   end
 
   def start
@@ -22,10 +21,10 @@ class Game
   end
 
   def swap_player
-    @current_player = if @current_player == @player_1
-                        @player_2
+    @current_player = if @current_player == @player_one
+                        @player_two
                       else
-                        @player_1
+                        @player_one
                       end
   end
 
@@ -44,34 +43,33 @@ class Game
   def game_over?
     if @board.full?
       tie
+      true
     elsif @board.consecutive?
       winner
+      true
     end
   end
 
   def tie
     @board.display
     puts "Draw!"
-    true
   end
 
   def winner
     @board.display
     puts "Player #{@current_player.marker} has won the game!"
-    true
   end
 
   def take_turn
     loop do
       puts "Player #{@current_player.marker} choose a column from the board: "
-      column = @current_player.ask_player
-      if @board.available?(column)
-        @board.update(column, @current_player.marker)
+      position = @current_player.ask_player
+      if position.between?(1, 7) && @board.available?(position)
+        @board.update(position, @current_player.marker)
         break
       end
     end
   end
-
 end
 
 class Player
@@ -82,15 +80,11 @@ class Player
   end
 
   def ask_player
-    position = gets.to_i
-    return position if position.between?(1, 7)
+    gets.to_i
   end
-
 end
 
 class Board
-  attr_accessor :one, :two, :three, :four, :five, :six, :seven
-
   def initialize
     @one = []
     @two = []
@@ -117,112 +111,52 @@ class Board
   end
 
   def full?
-    if @one.count == 6 &&
-       @two.count == 6 &&
-       @three.count == 6 &&
-       @four.count == 6 &&
-       @five.count == 6 &&
-       @six.count == 6 &&
-       @seven.count == 6
-
-      true
-    else
-      false
-    end
+    grid = make_grid
+    grid.all? { |col| col.count == 6 }
   end
 
-  def available?(column)
-    if column == 1 && @one.count < 6
-      true
-    elsif column == 2 && @two.count < 6
-      true
-    elsif column == 3 && @three.count < 6
-      true
-    elsif column == 4 && @four.count < 6
-      true
-    elsif column == 5 && @five.count < 6
-      true
-    elsif column == 6 && @six.count < 6
-      true
-    elsif column == 7 && @seven.count < 7
-      true
-    end
+  def make_grid
+    grid = []
+    grid.push(@one, @two, @three, @four, @five, @six, @seven)
   end
 
-  def update(column, marker)
-    if column == 1
-      one.push(marker)
-    elsif column == 2
-      two.push(marker)
-    elsif column == 3
-      three.push(marker)
-    elsif column == 4
-      four.push(marker)
-    elsif column == 5
-      five.push(marker)
-    elsif column == 6
-      six.push(marker)
-    elsif column == 7
-      seven.push(marker)
-    end
+  def available?(position)
+    column = convert_to_column(position)
+    true if column.count < 6
+  end
+
+  def convert_to_column(position)
+    numbers_to_name = {
+      7 => 'seven',
+      6 => 'six',
+      5 => 'five',
+      4 => 'four',
+      3 => 'three',
+      2 => 'two',
+      1 => 'one'
+    }
+    instance_variable_get("@#{numbers_to_name[position]}")
+  end
+
+  def update(position, marker)
+    column = convert_to_column(position)
+    column.push(marker)
   end
 
   def consecutive?
-    columns = []
-    columns.push(@one, @two, @three, @four, @five, @six, @seven)
-    
-    rows = make_rows(columns)
-    
-    if four_in_row?(columns)
-      true
-    elsif four_in_row?(rows)
-      true
-    elsif diagonal?(rows)
-      true
-    else
-      false
-    end
+    columns = make_grid
+    rows = make_filled_rows(columns)
+    forw_diagonals = make_forward_diagonals(rows)
+    back_diagonals = make_backwards_diagonals(rows)
+    true if four_in_row?(columns) || four_in_row?(rows) || four_in_row?(forw_diagonals) || four_in_row?(back_diagonals)
   end
 
-  def make_rows(columns)
-    temp_columns = Marshal.load(Marshal.dump(columns))
-    temp_columns.each do |column|
+  def make_filled_rows(columns)
+    filled_columns = Marshal.load(Marshal.dump(columns))
+    filled_columns.each do |column|
       column.push('*') until column.count == 6
     end
-  
-    temp_columns.transpose
-  end
-
-  def four_in_row?(arrays)
-    arrays.each do |arr|
-      string = arr.join(",")
-      if string.include?('X,X,X,X')
-        return true
-      elsif string.include?('O,O,O,O')
-        return true
-      else
-        false
-      end 
-    end
-    false    
-  end
-
-  def diagonal?(rows) 
-    forward_slash_diagonals = make_forward_diagonals(rows)
-    backward_slash_diagonals = make_backwards_diagonals(rows)
-    # Keep for testing
-    puts "Grid of rows:"
-    pp rows
-    puts
-    puts "Diagonal arrays:"
-    # pp forward_slash_diagonals
-    pp backward_slash_diagonals
-    puts
-    # # # #
-
-    ####   four_in_row?(forward_slash_diagonals)
-    
-    four_in_row?(backward_slash_diagonals)
+    filled_columns.transpose
   end
 
   def make_forward_diagonals(grid)
@@ -231,17 +165,22 @@ class Board
     end.concat((1..3).map do |j|
       (0..6 - j).map { |i| grid[i][j + i] }
     end)
-  end 
+  end
 
   def make_backwards_diagonals(grid)
     (0..2).map do |i|
       (0..5 - i).map { |j| grid[i + j][6 - j] }
-    end
+    end.concat((1..3).map do |j|
+      (0..6 - j).map { |i| grid[i][6 - j - i] }
+    end)
+  end
 
-    
-    # .concat((1..3).map do |j|
-    #   (0..6 - j).map { |i| grid[i][j + i] }
-    # end)
+  def four_in_row?(arrays)
+    arrays.each do |line|
+      a = line.each_cons(4).find { |pattern| pattern.uniq.size == 1 && pattern.first != '*' }
+      return true unless a.nil?
+    end
+    false
   end
 end
 

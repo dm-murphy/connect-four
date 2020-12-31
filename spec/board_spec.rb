@@ -4,7 +4,7 @@ require './lib/board'
 describe Board do
 
   describe '#display' do
-    # Query sent to self, don't test
+    # Query sent to self, puts message, don't test
   end
 
   describe '#full?' do

@@ -3,101 +3,25 @@ require './lib/board'
 
 describe Board do
 
-  describe '#available?' do
-    # Should I not have tested this either?
-    context 'when player choose an open column' do
-
-      it 'returns true' do
-        board = Board.new
-        column = 3
-        allow(board).to receive(:available?).and_return(true)
-        expect(board.available?(column)).to eq(true)
-      end
-    end
-  end
-  
-  describe '#update' do
-    # Command incoming from Game
-
-    context 'when third column is picked and available' do
-
-      it 'updates third column with player marker' do
-        board = Board.new
-        marker = 'X'
-        board.update(3, marker)
-        expect(board.three).to eq(['X'])
-      end
-
-    end
-  end
-
   describe '#display' do
-    # Puts no test
-  end
-
-  describe '#consecutive?' do
-    # Query incoming from Game
-    context 'when a Player marker appears 4 consecutive times in a horiztonal line' do
-      
-      it 'returns true' do
-        board = Board.new
-        allow(board).to receive(:four_in_row?).and_return(true)
-        expect(board.consecutive?).to be true
-      end
-
-    end
-
-    context 'when a Player marker appears 4 consecutive times in a diagonal line' do
-
-      it 'returns true' do
-        board = Board.new
-        allow(board).to receive(:diagonal?).and_return(true)
-        expect(board.consecutive?).to be true
-      end
-    end
-
-    context 'when a Player marker appears 4 consecutive times in a vertical line' do
-      
-      it 'returns true' do
-        board = Board.new
-        allow(board).to receive(:four_in_row?).and_return(true)
-        expect(board.consecutive?).to be true
-      end
-    end
-
-    context 'when no Player marker appears 4 consecutive times in any direction' do
-
-      it 'returns false' do
-        board = Board.new
-        allow(board).to receive(:four_in_row?).and_return(false)
-        allow(board).to receive(:four_in_row?).and_return(false)
-        allow(board).to receive(:diagonal?).and_return(false)
-        expect(board.consecutive?).to be false
-      end
-    end
-
+    # Query sent to self, don't test
   end
 
   describe '#full?' do
-    # Query incoming from Game
+    # Query incoming from Game object, test here
     context 'when all columns have a count of 6' do
       it 'returns true' do
         board = Board.new
-        one = board.instance_variable_get(:@one)
-        one.push('X', 'O', 'X', 'O', 'X', 'O')
-        two = board.instance_variable_get(:@two)
-        two.push('X', 'O', 'X', 'O', 'X', 'O')
-        three = board.instance_variable_get(:@three)
-        three.push('X', 'O', 'X', 'O', 'X', 'O')
-        four = board.instance_variable_get(:@four)
-        four.push('X', 'O', 'X', 'O', 'X', 'O')
-        five = board.instance_variable_get(:@five)
-        five.push('X', 'O', 'X', 'O', 'X', 'O')
-        six = board.instance_variable_get(:@six)
-        six.push('X', 'O', 'X', 'O', 'X', 'O')
-        seven = board.instance_variable_get(:@seven)
-        seven.push('X', 'O', 'X', 'O', 'X', 'O')
-
+        grid = [
+          ['X', 'O', 'X', 'O', 'X', 'O'],
+          ['O', 'X', 'O', 'X', 'O', 'X'],
+          ['X', 'O', 'X', 'O', 'X', 'O'],
+          ['X', 'O', 'X', 'O', 'X', 'O'],
+          ['O', 'X', 'O', 'X', 'O', 'X'],
+          ['O', 'X', 'O', 'X', 'O', 'X'],
+          ['X', 'O', 'X', 'O', 'X', 'O']
+        ]
+        allow(board).to receive(:make_grid).and_return(grid)
         expect(board.full?).to be true
       end
     end
@@ -105,23 +29,161 @@ describe Board do
     context 'when one or more columns do not have a count of 6' do
       it 'returns false' do
         board = Board.new
-        one = board.instance_variable_get(:@one)
-        one.push('X', 'O')
-        two = board.instance_variable_get(:@two)
-        two.push('X', 'O', 'X', 'O', 'X', 'O')
-        three = board.instance_variable_get(:@three)
-        three.push('X', 'O', 'X', 'O', 'X', 'O')
-        four = board.instance_variable_get(:@four)
-        four.push('X', 'O', 'X', 'O', 'X', 'O')
-        five = board.instance_variable_get(:@five)
-        five.push('X', 'O', 'X', 'O', 'X', 'O')
-        six = board.instance_variable_get(:@six)
-        six.push('X', 'O', 'X', 'O', 'X', 'O')
-        seven = board.instance_variable_get(:@seven)
-        seven.push('X', 'O')
-
+        grid = [
+          ['X', 'O', 'X', 'O'],
+          ['O', 'X', 'O', 'X', 'O'],
+          ['X', 'O'],
+          ['X', 'O', 'X', 'O', 'X'],
+          ['O'],
+          ['O', 'X', 'O', 'X', 'O', 'X'],
+          ['X', 'O', 'X', 'O']
+        ]
+        allow(board).to receive(:make_grid).and_return(grid)
         expect(board.full?).to be false
       end
     end
+  end
+
+  describe '#make_grid' do
+    # Query sent to self?
+    # Should this be a Private method?
+  end
+
+  describe '#available?' do
+    # Incoming query from Game object
+
+    context 'when player chose an open column' do
+
+      it 'returns true' do
+        board = Board.new
+        column = board.instance_variable_set(:@three, ['X', 'O', 'X'])
+        allow(board).to receive(:convert_to_column).and_return(column)
+        expect(board.available?(3)).to eq(true)
+      end
+    end
+
+    context 'when player chose a full column' do
+
+      it 'returns false' do
+        board = Board.new
+        column = board.instance_variable_set(:@five, ['X', 'O', 'X', 'X', 'X', 'O'])
+        allow(board).to receive(:convert_to_column).and_return(column)
+        expect(board.available?(5)).to eq(false)
+      end
+    end
+  end
+
+  describe '#convert_to_column' do
+    # Query sent to self?
+    # Should this be a Private method?
+  end
+  
+  describe '#update' do
+    # Incoming command message from Game object
+
+    subject(:game_board) { described_class.new }
+
+    context 'when an available position is picked' do
+
+      it 'updates column with player marker' do
+        column = game_board.instance_variable_set(:@three, ['X'])
+        allow(game_board).to receive(:convert_to_column).and_return(column) 
+        updated_column = ['X', 'X']
+        game_board.update(3, 'X')
+        expect(column).to eq(updated_column)
+      end
+
+    end
+  end
+
+  describe '#consecutive?' do
+    # Query incoming from Game object
+
+    subject(:game_board) { described_class.new }
+
+    context 'when a Player marker appears 4 consecutive times in a vertical line' do
+      arrays = [
+        ['X', 'O', 'X', 'O'],
+        ['O', 'X', 'O', 'X', 'O'],
+        ['X', 'O'],
+        ['X', 'X', 'X', 'X'],
+        ['O'],
+        ['O', 'X', 'O', 'X', 'O', 'X'],
+        ['X', 'O', 'X', 'O']
+      ]
+
+      it 'returns true' do
+        allow(game_board).to receive(:make_grid).and_return(arrays)
+        expect(game_board.consecutive?).to be true
+      end
+    end
+
+    context 'when a Player marker appears 4 consecutive times in a horiztonal line' do
+      arrays = [
+        ['O', 'X', 'O', 'X', 'O', 'X', 'O'],
+        ['O', 'X', 'O', 'O', 'O', 'X', 'X'],
+        ['X', 'X', 'X', 'X', 'O', 'X', '*'],
+        ['X', 'O', '*', '*', '*', '*', '*'],
+        ['O', 'X', '*', '*', '*', '*', '*'],
+        ['X', '*', '*', '*', '*', '*', '*']
+      ]
+
+      it 'returns true' do
+        allow(game_board).to receive(:make_filled_rows).and_return(arrays)
+        expect(game_board.consecutive?).to be true
+      end
+    end
+
+    context 'when a Player marker appears 4 consecutive times in a forward diagonal line' do
+      arrays = [
+        ["X", "O", "O", "O", "O", "*"],
+        ["X", "*", "*", "*", "*"],
+        ["*", "*", "*", "*"],
+        ["O", "X", "X", "O", "*", "*"],
+        ["X", "O", "X", "*", "*"],
+        ["O", "X", "*", "*"]
+      ]
+
+      it 'returns true' do
+        allow(game_board).to receive(:make_forward_diagonals).and_return(arrays)
+        expect(game_board.consecutive?).to be true
+      end
+    end
+
+    context 'when a Player marker appears 4 consecutive times in a backward diagonal line' do
+      arrays = [
+        ["X", "X", "X", "X", "*", "*"],
+        ["O", "*", "*", "*", "*"],
+        ["*", "*", "*", "*"],
+        ["O", "O", "O", "*", "*", "*"],
+        ["X", "X", "*", "*", "*"],
+        ["O", "O", "O", "*"]
+      ]
+
+      it 'returns true' do
+        allow(game_board).to receive(:make_backwards_diagonals).and_return(arrays)
+        expect(game_board.consecutive?).to be true
+      end
+    end
+  end
+
+  describe '#make_filled_rows' do
+    # Query message sent to self
+    # Should this be Private method?
+  end
+
+  describe '#make_forward_diagonals' do
+    # Query message sent to self
+    # Private method?
+  end
+
+  describe '#make_backwards_diagonals' do
+    # Query message sent to self
+    # Private method?
+  end
+
+  describe '#four_in_row?' do
+    # Query message sent to self
+    # Private method?
   end
 end

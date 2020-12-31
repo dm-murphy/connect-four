@@ -45,7 +45,7 @@ describe Board do
   end
 
   describe '#make_grid' do
-    # Query sent to self?
+    # Query sent to self
     # Should this be a Private method?
   end
 
@@ -74,7 +74,7 @@ describe Board do
   end
 
   describe '#convert_to_column' do
-    # Query sent to self?
+    # Query sent to self
     # Should this be a Private method?
   end
   
@@ -169,7 +169,7 @@ describe Board do
 
   describe '#make_filled_rows' do
     # Query message sent to self
-    # Should this be Private method?
+    # Private method?
   end
 
   describe '#make_forward_diagonals' do
@@ -184,6 +184,37 @@ describe Board do
 
   describe '#four_in_row?' do
     # Query message sent to self
-    # Private method?
+    
+    subject(:game_board) { described_class.new }
+
+    context 'when a Player marker appears 4 consecutive times in provided 2D array' do
+      arrays = [
+        ['O', 'X', 'O', 'X', 'O', 'X', 'O'],
+        ['O', 'X', 'O', 'O', 'O', 'X', 'X'],
+        ['X', 'X', 'X', 'X', 'O', 'X', '*'],
+        ['X', 'O', '*', '*', '*', '*', '*'],
+        ['O', 'X', '*', '*', '*', '*', '*'],
+        ['X', '*', '*', '*', '*', '*', '*']
+      ]
+
+      it 'returns true' do
+        expect(game_board.four_in_row?(arrays)).to be true
+      end
+    end
+    
+    context 'when no Player markers appears 4 consecutive times in provided 2D array' do
+      arrays = [
+        ['X', 'O', 'X', 'O', 'X', 'O'],
+        ['O', 'X', 'O', 'X', 'O', 'X'],
+        ['X', 'O', 'X', 'O', 'X', 'O'],
+        ['X', 'O', 'X', 'O', 'X', 'O'],
+        ['O', 'X', 'O', 'X', 'O', 'X'],
+        ['O', 'X', 'O', 'X', 'O', 'X'],
+        ['X', 'O', 'X', 'O', 'X', 'O']
+      ]
+      it 'returns false' do
+        expect(game_board.four_in_row?(arrays)).to be false
+      end
+    end
   end
 end

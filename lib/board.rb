@@ -38,7 +38,7 @@ class Board
 
   def available?(position)
     column = convert_to_column(position)
-    true if column.count < 6
+    column.count < 6
   end
 
   def convert_to_column(position)

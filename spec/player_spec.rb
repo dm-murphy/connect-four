@@ -4,20 +4,23 @@ require './lib/player'
 describe Player do
 
   describe '#ask_player' do
- 
-    context 'when player chooses a valid position' do
-      it 'returns position' do
-        player = Player.new('X')
-        allow(player).to receive(:ask_player).and_return(3)
-        expect(player.ask_player).to eq(3)
+    # Incoming query message from Game object, test here
+
+    subject(:new_player) { described_class.new('X') }
+
+    context 'when player chooses a position' do
+      it 'returns integer' do
+        valid_input = '3'
+        allow(new_player).to receive(:gets).and_return(valid_input)
+        expect(new_player.ask_player).to eq(3)
       end
     end
 
-    context 'when player chooses an invalid position' do
-      it 'returns nil' do
-        player = Player.new('X')
-        allow(player).to receive(:ask_player).and_return(nil)
-        expect(player.ask_player).to eq(nil)
+    context 'when player chooses an invalid entry' do
+      it 'returns 0' do
+        invalid_input = 'three'
+        allow(new_player).to receive(:gets).and_return(invalid_input)
+        expect(new_player.ask_player).to eq(0)
       end
     end
   end

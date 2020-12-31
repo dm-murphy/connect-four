@@ -8,6 +8,6 @@ class Player
   end
 
   def ask_player
-    gets.to_i
+    gets.chomp.to_i
   end
 end
